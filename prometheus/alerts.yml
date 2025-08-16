@@ -1,0 +1,20 @@
+# prometheus/alerts.yml — actionable, low-noise alert examples
+groups:
+- name: app-slo
+  rules:
+  - alert: HighErrorRate
+    expr: sum(rate(errors_total[2m])) / sum(rate(requests_total[2m])) > 0.05
+    for: 2m
+    labels: { severity: page }
+    annotations:
+      summary: "5xx error ratio > 5 percent"
+      runbook: "See POSTMORTEM_TEMPLATE.md and dashboard panel 'Error Ratio'."
+
+  - alert: HighLatencyP95
+    expr: histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket[2m])) by (le))
+          > 0.5
+    for: 2m
+    labels: { severity: ticket }
+    annotations:
+      summary: "p95 latency > 500ms"
+      runbook: "Investigate recent deployments, db load, or ERROR_RATE spikes."

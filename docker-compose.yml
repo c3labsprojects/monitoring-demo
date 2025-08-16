@@ -1,0 +1,42 @@
+# docker-compose.yml — single-file orchestration for demo
+#
+# WHY THIS EXISTS
+# ----------------
+# Stand up the demo in one command: API + Prometheus + Grafana + Alertmanager.
+# All configs are mounted with comments so reviewers can read and reason quickly.
+version: "3.9"
+services:
+  app:
+    build: ./app
+    environment:
+      # Restored to healthy behavior: no errors, no latency
+      - ERROR_RATE=0.0
+      - SLEEP_MS=0
+    ports: ["8000:8000"]
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports: ["9090:9090"]
+    depends_on: [app]
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    ports: ["9093:9093"]
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    ports: ["3000:3000"]
+    depends_on: [prometheus]

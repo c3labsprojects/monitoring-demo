@@ -1,0 +1,12 @@
+# alertmanager/alertmanager.yml — route everything to webhook if configured.
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: "default"
+
+receivers:
+- name: "default"
+  webhook_configs:
+    - url: "http://localhost:9093/api/v1/alerts"
+      send_resolved: true
