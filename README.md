@@ -25,54 +25,37 @@ A lightweight, production-ready demonstration of observability best practices us
 
 ### Setup
 ```bash
-# Clone the repository
-git clone <your-repo-url>
-cd monitoring-incident-demo
+# from project root
+docker compose up -d --build
 
-# Start all services
-docker compose up -d
-
-# Verify services are running
-docker compose ps
+# URLs
+# App:          http://localhost:8000
+# Metrics:      http://localhost:8000/metrics
+# Prometheus:   http://localhost:9090
+# Grafana:      http://localhost:3000  (admin/admin)
+# Alertmanager: http://localhost:9093
 ```
 
-### Access Points
-- **App**: http://localhost:8000
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000 (admin/admin)
-- **Alertmanager**: http://localhost:9093
+## 🎭 Simulate Incident
 
-## 🎭 Incident Simulation
-
-### 1. Healthy System
+### 1. Trigger Incident
 ```bash
-# App starts with 0% errors, 0ms latency
-curl http://localhost:8000
-# Response: {"ok": true, "message": "hello from demo"}
-```
-
-### 2. Trigger Incident
-```bash
-# Update docker-compose.yml environment variables:
-#   - ERROR_RATE=0.3
-#   - SLEEP_MS=800
-
-# Rebuild and restart
+# Edit docker-compose.yml and set:
+# ERROR_RATE=0.3
+# SLEEP_MS=800
 docker compose up -d --build app
 ```
 
-### 3. Monitor Alerts
-- **Prometheus Alerts**: http://localhost:9090/alerts
-- **Grafana Dashboard**: http://localhost:3000
-- **Alertmanager**: http://localhost:9093
+### 2. Monitor Alerts
+- **Check Prometheus "Alerts" tab**: http://localhost:9090/alerts
+- **View Grafana dashboard**: http://localhost:3000
+- **Check Alertmanager**: http://localhost:9093
 
-### 4. Resolve Incident
+### 3. Resolve Incident
 ```bash
-# Restore healthy behavior
-#   - ERROR_RATE=0.0
-#   - SLEEP_MS=0
-
-# Rebuild and restart
+# Revert values in docker-compose.yml:
+# ERROR_RATE=0.0
+# SLEEP_MS=0
 docker compose up -d --build app
 ```
 
